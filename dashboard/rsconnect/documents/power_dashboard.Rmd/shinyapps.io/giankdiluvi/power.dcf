@@ -1,0 +1,12 @@
+name: power
+title: power
+username:
+account: giankdiluvi
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1864231
+bundleId: 2830049
+url: https://giankdiluvi.shinyapps.io/power/
+when: 1582679442.417
+asMultiple: FALSE
+asStatic: FALSE
