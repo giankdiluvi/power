@@ -3,7 +3,7 @@ title: "<b>Power and sample size</b>"
 author: "Gian Carlo Diluvi"
 output: 
   flexdashboard::flex_dashboard:
-    theme: yeti
+    theme: lumen
     vertical_layout: fill
     orientation: columns
     source_code: https://github.com/GiankDiluvi/power
@@ -35,7 +35,7 @@ Column {.sidebar}
 
 We are testing 
 $$
-H_0: \mu = \mu_0 \quad \mathrm{vs} \quad H_1: \mu \neq \mu_0.
+H_0: \mu = \mu_0 \enspace \mathrm{vs} \enspace H_1: \mu \neq \mu_0.
 $$
 
 Select parameters:
@@ -95,7 +95,7 @@ Column {.tabset}
 
 
 
-### Power plots
+### Density plots
 
 ```{r plot}
 
@@ -124,7 +124,6 @@ renderPlot({
   ymax0 <- dnorm(mu0, mean = mu0, sd = sd0)
   ymax1 <- dnorm(mu1, mean = mu1, sd = sd0)
   ymax <- max(ymax0, ymax1)
-  
   
   cv0 <- qnorm(1-t1e, mean = mu0, sd = sd0)
   
@@ -169,7 +168,8 @@ renderPlot({
      labs(x = "",
           y = "",
           title = expression(H[0])) +
-    xlim(c(xmin, xmax))
+    xlim(c(xmin, xmax)) +
+    theme(axis.text = element_text(size = 14))
   
   power <- pnorm(cv0, mean = mu1, sd = sd0, lower.tail = FALSE)
   
@@ -215,7 +215,9 @@ renderPlot({
      labs(x = expression(mu),
           y = "",
           title = expression(H[1])) +
-    xlim(c(xmin, xmax))
+    xlim(c(xmin, xmax)) +
+    theme(axis.text = element_text(size = 14),
+          axis.title.x = element_text(size = 14))
     
   h0 / h1
   
@@ -308,7 +310,10 @@ output$power_plot <- renderPlot({
     #            parse = TRUE) + # add nstar value
     labs(x = expression(paste("Sample size ", n)),
          y = "Power / sensitivity",
-         title = paste("Optimal sample size:", nstar))
+         title = paste("Optimal sample size:", nstar)) +
+    theme(axis.text = element_text(size = 14),
+          axis.title.x = element_text(size = 14)) +
+    coord_flip()
   
   
   power_plot

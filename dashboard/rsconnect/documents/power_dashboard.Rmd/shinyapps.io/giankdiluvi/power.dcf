@@ -5,8 +5,8 @@ account: giankdiluvi
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1864231
-bundleId: 2830049
+bundleId: 2870128
 url: https://giankdiluvi.shinyapps.io/power/
-when: 1582679442.417
+when: 1583905320.11733
 asMultiple: FALSE
 asStatic: FALSE
