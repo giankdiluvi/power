@@ -7,7 +7,7 @@ In the context of hypothesis testing, statistical power is defined as the probab
 This dashboard helps to visualize how these factors affect the power in a Normal hypothesis test, and includes an interactive sample size calculator.
 
 ## How to use
-The dashboard is available here: [https://giankdiluvi.shinyapps.io/power/](https://giankdiluvi.shinyapps.io/power/). I also developed some [https://docs.google.com/presentation/d/1SbONqAg90xBF4fjRa5W73SI7Y4C5DUB0-Dg6oVTgdqc/edit?usp=sharing](slides) talking about the relationship about power and sample size. \
+The dashboard is available here: [https://giankdiluvi.shinyapps.io/power/](https://giankdiluvi.shinyapps.io/power/). I also developed some [slides](https://docs.google.com/presentation/d/1SbONqAg90xBF4fjRa5W73SI7Y4C5DUB0-Dg6oVTgdqc/edit?usp=sharing) talking about the relationship about power and sample size. 
 
 The folder `dashboard` includes the `R` code used for generating the dashboard.
 
