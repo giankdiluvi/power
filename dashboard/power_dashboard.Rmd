@@ -35,7 +35,7 @@ Column {.sidebar}
 
 We are testing 
 $$
-H_0: \mu = \mu_0 \enspace \mathrm{vs} \enspace H_1: \mu \neq \mu_0.
+H_0: \mu = \mu_0 \enspace \mathrm{vs} \enspace H_1: \mu > \mu_0.
 $$
 
 Select parameters:
@@ -134,7 +134,7 @@ renderPlot({
      geom_segment(aes(x = cv0, y = 0, 
                       xend = cv0, yend = 1.15*ymax0),
                   linetype="dashed",
-                  size=0.25) + # adds line on critical value
+                  size=0.5) + # adds line on critical value
      stat_function(fun = dnorm, 
                    args = list(mean = mu0, sd = sd0),
                    xlim = c(xmin, cv0),
@@ -148,28 +148,33 @@ renderPlot({
      geom_text(aes(label = "alpha",
                    x = cv0 + sd0/4, 
                    y = dnorm(cv0 + sd0/4, mean = mu0, sd = sd0) + 0.1*ymax0),
-               parse = TRUE) +           # add alpha label
+               parse = TRUE,
+               size = 4.5) +           # add alpha label
      geom_text(aes(label = as.character(t1e),
                    x = cv0 + sd0/4, 
                    y = dnorm(cv0 + sd0/4, mean = mu0, sd = sd0)  + 0.1*ymax0 - 0.04*ymax0),
-               parse = TRUE) +           # add alpha value
+               parse = TRUE,
+               size = 4.5) +           # add alpha value
      geom_text(aes(label = "Specificity",
                    x = cv0  - sd0/4, 
                    y = dnorm(cv0  - sd0/4, mean = mu0, sd = sd0) + 0.15*ymax0),
-               parse = TRUE) +           # add specificity label
+               parse = TRUE,
+               size = 4.5) +           # add specificity label
      geom_text(aes(label = as.character(1 - t1e),
                    x = cv0 - sd0/4, 
                    y = dnorm(cv0 - sd0/4, mean = mu0, sd = sd0) + 0.15*ymax0 - 0.04*ymax0),
-               parse = TRUE) +           # add specificity value
+               parse = TRUE,
+               size = 4.5) +           # add specificity value
      geom_text(aes(label = as.character(round(cv0, 2)),
                    x = cv0, 
                    y = 1.2*ymax0),
-               parse = TRUE) +          # add critical value
+               parse = TRUE,
+               size = 5) +          # add critical value
      labs(x = "",
           y = "",
           title = expression(H[0])) +
     xlim(c(xmin, xmax)) +
-    theme(axis.text = element_text(size = 14))
+    theme(text = element_text(size = 16))
   
   power <- pnorm(cv0, mean = mu1, sd = sd0, lower.tail = FALSE)
   
@@ -180,7 +185,7 @@ renderPlot({
      geom_segment(aes(x = cv0, y = 0, 
                       xend = cv0, yend = 1.15*ymax1),
                   linetype="dashed",
-                  size=0.25) + # adds line on critical value
+                  size=0.5) + # adds line on critical value
      stat_function(fun = dnorm, 
                    args = list(mean = mu1, sd = sd0),
                    xlim = c(xmin, cv0),
@@ -195,19 +200,23 @@ renderPlot({
      geom_text(aes(label = "Power",
                    x = cv0 + sd0/4, 
                    y = dnorm(cv0 + sd0/4, mean = mu1, sd = sd0) + 0.15*ymax1),
-               parse = TRUE) +           # add power label
+               parse = TRUE,
+               size = 4.5) +           # add power label
      geom_text(aes(label = as.character(round(power, 2)),
                    x = cv0 + sd0/4, 
                    y = dnorm(cv0 + sd0/4, mean = mu1, sd = sd0)  + 0.15*ymax1 - 0.06*ymax1),
-               parse = TRUE) +           # add power value
+               parse = TRUE,
+               size = 4.5) +           # add power value
      geom_text(aes(label = "beta",
                    x = cv0  - sd0/4, 
                    y = dnorm(cv0  - sd0/4, mean = mu1, sd = sd0) + 0.1*ymax1),
-               parse = TRUE) +           # add t2e label
+               parse = TRUE,
+               size = 4.5) +           # add t2e label
      geom_text(aes(label = as.character(round(1 - power, 2)),
                    x = cv0 - sd0/4, 
                    y = dnorm(cv0 - sd0/4, mean = mu1, sd = sd0) + 0.1*ymax1 - 0.04*ymax1),
-               parse = TRUE) +           # add t2e value
+               parse = TRUE,
+               size = 4.5) +           # add t2e value
      # geom_text(aes(label = as.character(round(cv0, 2)),
      #               x = cv0, 
      #               y = 1.2*ymax1),
@@ -216,8 +225,8 @@ renderPlot({
           y = "",
           title = expression(H[1])) +
     xlim(c(xmin, xmax)) +
-    theme(axis.text = element_text(size = 14),
-          axis.title.x = element_text(size = 14))
+    theme(text = element_text(size = 16),
+          axis.title.x = element_text(size = 20))
     
   h0 / h1
   
@@ -291,15 +300,16 @@ output$power_plot <- renderPlot({
   
   # plot
   power_plot <- ggplot(tibble(n = 1:nmax, b = power_fun(1:nmax))) +
-    geom_line(aes(x = n, y = b)) + # power function
+    geom_line(aes(x = n, y = b),
+              size = 1) + # power function
     geom_segment(aes(x = nstar, xend = nstar,
                      y = 0, yend = power_fun(nstar)),
                  linetype="dashed",
-                  size=0.25) + # nstar line
+                  size=0.5) + # nstar line
     geom_segment(aes(x = 0, xend = nstar,
                      y = power_fun(nstar), yend = power_fun(nstar)),
                  linetype="dashed",
-                  size=0.25) + # power line
+                  size=0.5) + # power line
     # geom_text(aes(label = "n^{'*'}",
     #                x = nstar + nmax/50, 
     #                y = power - 0.02),
@@ -313,7 +323,10 @@ output$power_plot <- renderPlot({
          title = paste("Optimal sample size:", nstar)) +
     theme(axis.text = element_text(size = 14),
           axis.title.x = element_text(size = 14)) +
-    coord_flip()
+    coord_flip() +
+    theme(text = element_text(size = 16),
+          axis.title.x = element_text(size = 18),
+          axis.title.y = element_text(size = 16))
   
   
   power_plot
