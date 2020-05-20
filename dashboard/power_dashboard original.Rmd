@@ -43,7 +43,11 @@ Select parameters:
 ```{r dist.input}
 
 
-
+# numericInput("mu0", label = withMathJax('$$\\mu_0$$'),
+#              value = 0)
+# 
+# numericInput("mu1", label = withMathJax(helpText('$$\\mu_1$$')),
+#              value = 1)
 
 
 sliderInput("mu", label = withMathJax('$$\\text{Means, } \\mu_0 \\text{ and }  \\mu_1 \\text{:}$$'),
@@ -75,9 +79,9 @@ renderPrint({
 ```{r test.input}
 
 numericInput("n", label = withMathJax('$$\\text{Sample size } n \\text{:}$$'),
-            min = 3, value = 10, step = 1)
+            min = 1, value = 10, step = 1)
 
-sliderInput("alpha", label = withMathJax('$$\\text{Type I error probability } \\alpha \\text{:}$$'),
+sliderInput("alpha", label = withMathJax('$$\\text{Type I error } \\alpha \\text{:}$$'),
             min = 0, max = 1, value = 0.05)
 
 ```
@@ -107,58 +111,58 @@ renderPlot({
   t1e <- input$alpha
   
   # create params
-  sdt <- (n-1) / (n-3)
-  tncp <- (mu1 - mu0) * sqrt(n / sigma2)
+  sd0 <- sqrt(sigma2 / n)
   
-  xmin0 <- qt(0.003, df = n-1)
-  xmin1 <- qt(0.003, df = n-1, ncp = tncp)
+  xmin0 <- mu0 - 3.5 * sd0
+  xmin1 <- mu1 - 3.5 * sd0
   xmin <- min(xmin0, xmin1)
   
-  xmax0 <- qt(0.997, df = n-1)
-  xmax1 <- qt(0.99, df = n-1, ncp = tncp)
+  xmax0 <- mu0 + 3.5 * sd0
+  xmax1 <- mu1 + 3.5 * sd0
   xmax <- max(xmax0, xmax1)
   
-  ymax0 <- dt(0, df=n-1)
-  ymax1 <- ymax0
+  ymax0 <- dnorm(mu0, mean = mu0, sd = sd0)
+  ymax1 <- dnorm(mu1, mean = mu1, sd = sd0)
   ymax <- max(ymax0, ymax1)
   
-  cv0 <- qt(1-t1e, df = n-1)
+  cv0 <- qnorm(1-t1e, mean = mu0, sd = sd0)
+  
   
   h0 <- ggplot(tibble(x = c(xmin, xmax)), aes(x)) +
-    stat_function(fun = dt, 
-                  args = list(df = n-1)) + #adds t density plot
+    stat_function(fun = dnorm, 
+                  args = list(mean = mu0, sd = sd0)) + #adds normal plot
      geom_segment(aes(x = cv0, y = 0, 
                       xend = cv0, yend = 1.15*ymax0),
                   linetype="dashed",
                   size=0.5) + # adds line on critical value
-     stat_function(fun = dt, 
-                   args = list(df = n-1),
+     stat_function(fun = dnorm, 
+                   args = list(mean = mu0, sd = sd0),
                    xlim = c(xmin, cv0),
                    geom = "area",
                    fill = "#55C667FF") + # fill up specificity
-     stat_function(fun = dt, 
-                   args = list(df = n-1),
+     stat_function(fun = dnorm, 
+                   args = list(mean = mu0, sd = sd0),
                    xlim = c(cv0, xmax),
                    geom = "area",
                    fill = "#D64B40FF") + # fill up type I error +
      geom_text(aes(label = "alpha",
-                   x = cv0 + sdt/4, 
-                   y = dt(cv0 + sdt/4, df = n-1) + 0.1*ymax0),
+                   x = cv0 + sd0/4, 
+                   y = dnorm(cv0 + sd0/4, mean = mu0, sd = sd0) + 0.1*ymax0),
                parse = TRUE,
                size = 4.5) +           # add alpha label
      geom_text(aes(label = as.character(t1e),
-                   x = cv0 + sdt/4, 
-                   y = dt(cv0 + sdt/4, df = n-1)  + 0.1*ymax0 - 0.04*ymax0),
+                   x = cv0 + sd0/4, 
+                   y = dnorm(cv0 + sd0/4, mean = mu0, sd = sd0)  + 0.1*ymax0 - 0.04*ymax0),
                parse = TRUE,
                size = 4.5) +           # add alpha value
      geom_text(aes(label = "Specificity",
-                   x = cv0  - sdt/4, 
-                   y = dt(cv0  - sdt/4, df = n-1) + 0.15*ymax0),
+                   x = cv0  - sd0/4, 
+                   y = dnorm(cv0  - sd0/4, mean = mu0, sd = sd0) + 0.15*ymax0),
                parse = TRUE,
                size = 4.5) +           # add specificity label
      geom_text(aes(label = as.character(1 - t1e),
-                   x = cv0 - sdt/4, 
-                   y = dt(cv0 - sdt/4, df = n-1) + 0.15*ymax0 - 0.04*ymax0),
+                   x = cv0 - sd0/4, 
+                   y = dnorm(cv0 - sd0/4, mean = mu0, sd = sd0) + 0.15*ymax0 - 0.04*ymax0),
                parse = TRUE,
                size = 4.5) +           # add specificity value
      geom_text(aes(label = as.character(round(cv0, 2)),
@@ -172,45 +176,45 @@ renderPlot({
     xlim(c(xmin, xmax)) +
     theme(text = element_text(size = 16))
   
-  power <- pt(cv0, df = n-1, ncp = tncp, lower.tail = FALSE)
+  power <- pnorm(cv0, mean = mu1, sd = sd0, lower.tail = FALSE)
   
   
   h1 <- ggplot(tibble(x = c(xmin, xmax)), aes(x)) +
-    stat_function(fun = dt, 
-                  args = list(df = n-1, ncp = tncp)) + #adds t plot
+    stat_function(fun = dnorm, 
+                  args = list(mean = mu1, sd = sd0)) + #adds normal plot
      geom_segment(aes(x = cv0, y = 0, 
                       xend = cv0, yend = 1.15*ymax1),
                   linetype="dashed",
                   size=0.5) + # adds line on critical value
-     stat_function(fun = dt, 
-                   args = list(df = n-1, ncp = tncp),
+     stat_function(fun = dnorm, 
+                   args = list(mean = mu1, sd = sd0),
                    xlim = c(xmin, cv0),
                    geom = "area",
                    fill = "#FCA007FF") + # fill up  type II error
-     stat_function(fun = dt, 
-                   args = list(df = n-1, ncp = tncp),
+     stat_function(fun = dnorm, 
+                   args = list(mean = mu1, sd = sd0),
                    xlim = c(cv0, xmax),
                    geom = "area",
                    fill = "#39558CFF",
                    alpha = 0.75) + # fill up power +
      geom_text(aes(label = "Power",
-                   x = cv0 + sdt/4, 
-                   y = dt(cv0 + sdt/4, df = n-1, ncp = tncp) + 0.15*ymax1),
+                   x = cv0 + sd0/4, 
+                   y = dnorm(cv0 + sd0/4, mean = mu1, sd = sd0) + 0.15*ymax1),
                parse = TRUE,
                size = 4.5) +           # add power label
      geom_text(aes(label = as.character(round(power, 2)),
-                   x = cv0 + sdt/4, 
-                   y = dt(cv0 + sdt/4, df = n-1, ncp = tncp)  + 0.15*ymax1 - 0.06*ymax1),
+                   x = cv0 + sd0/4, 
+                   y = dnorm(cv0 + sd0/4, mean = mu1, sd = sd0)  + 0.15*ymax1 - 0.06*ymax1),
                parse = TRUE,
                size = 4.5) +           # add power value
      geom_text(aes(label = "beta",
-                   x = cv0  - sdt/4, 
-                   y = dt(cv0  - sdt/4, df = n-1, ncp = tncp) + 0.1*ymax1),
+                   x = cv0  - sd0/4, 
+                   y = dnorm(cv0  - sd0/4, mean = mu1, sd = sd0) + 0.1*ymax1),
                parse = TRUE,
                size = 4.5) +           # add t2e label
      geom_text(aes(label = as.character(round(1 - power, 2)),
-                   x = cv0 - sdt/4, 
-                   y = dt(cv0 - sdt/4, df = n-1, ncp = tncp) + 0.1*ymax1 - 0.04*ymax1),
+                   x = cv0 - sd0/4, 
+                   y = dnorm(cv0 - sd0/4, mean = mu1, sd = sd0) + 0.1*ymax1 - 0.04*ymax1),
                parse = TRUE,
                size = 4.5) +           # add t2e value
      # geom_text(aes(label = as.character(round(cv0, 2)),
@@ -269,27 +273,25 @@ output$power_plot <- renderPlot({
   mu0 <- mu[1]
   mu1 <- mu[2]
   sigma2 <- input$sigma2
-  power <- input$power
   
   t1e <- input$alpha
-  
+  power <- input$power
   
   # create power function
   power_fun <- function(n){
-    cv0 <- qt(1-t1e, df = n-1)
-    tncp <- (mu1 - mu0) * sqrt(n / sigma2)
-    pt(cv0, df = n-1, ncp = tncp, lower.tail = FALSE)
+    cv0 <- qnorm(1-t1e, mean = mu0, sd = sqrt(sigma2 / n))
+    pnorm(cv0, mean = mu1, sd = sqrt(sigma2 / n), lower.tail = FALSE)
   } 
   
   # determine biggest n
   b_target <- max(power, 0.999)
-  for(i in 2:1000){
+  for(i in 1:1000){
     if(power_fun(i) > b_target) break
   }
   nmax <- i
   
   # determine solution
-  for(i in 2:nmax){
+  for(i in 1:nmax){
     if(power_fun(i) > power) break
   }
   nstar <- i
@@ -297,7 +299,7 @@ output$power_plot <- renderPlot({
   nmax <- min(nmax, 2*nstar)
   
   # plot
-  power_plot <- ggplot(tibble(n = 2:nmax, b = power_fun(2:nmax))) +
+  power_plot <- ggplot(tibble(n = 1:nmax, b = power_fun(1:nmax))) +
     geom_line(aes(x = n, y = b),
               size = 1) + # power function
     geom_segment(aes(x = nstar, xend = nstar,
@@ -308,6 +310,14 @@ output$power_plot <- renderPlot({
                      y = power_fun(nstar), yend = power_fun(nstar)),
                  linetype="dashed",
                   size=0.5) + # power line
+    # geom_text(aes(label = "n^{'*'}",
+    #                x = nstar + nmax/50, 
+    #                y = power - 0.02),
+    #            parse = TRUE) + # add nstar label
+    # geom_text(aes(label = as.character(nstar),
+    #                x = nstar + nmax/20, 
+    #                y = power - 0.02),
+    #            parse = TRUE) + # add nstar value
     labs(x = expression(paste("Sample size ", n)),
          y = "Power / sensitivity",
          title = paste("Optimal sample size:", nstar)) +
