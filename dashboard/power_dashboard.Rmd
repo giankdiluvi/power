@@ -1,5 +1,5 @@
 ---
-title: "<b>Power and sample size</b>"
+title: "**Power and sample size**"
 author: "Gian Carlo Diluvi"
 output: 
   flexdashboard::flex_dashboard:
@@ -10,7 +10,7 @@ output:
 runtime: shiny
 ---
 
-```{r setup, include=FALSE, warning = FALSE}
+```{r global, include=FALSE, warning = FALSE}
 # basics
 library(flexdashboard)
 library(tidyverse)
@@ -30,24 +30,63 @@ library(DT)
 library(miniUI)
 ```
 
+
+**Density plots**
+=====================================
+
 Column {.sidebar}
 -------------------------------------
 
 We are testing 
 $$
-H_0: \mu = \mu_0 \enspace \mathrm{vs} \enspace H_1: \mu > \mu_0.
+H_0: \mu = \mu_0 \enspace \mathrm{vs} \enspace H_1: \mu = \mu_1 > \mu_0.
 $$
 
-Select parameters:
-
-```{r dist.input}
+ **Select $H_0$ parameters:**
 
 
+```{r h0.params}
+# 
+# blahUI <- function(id){
+#   fillCol(flex = c(NA, 1),
+#           inputPanel(
+#             setSliderColor(color = c("#55C667FF", "#39558CFF"), sliderId = c(1, 2, 3)),
+#             
+#             sliderInput("mu0", label = withMathJax('$$\\text{Null mean } \\mu_0 \\text{:}$$'),
+#                         min = -2, max = 0, value = 0, step = 0.1),
+#             
+#             numericInput("n", label = withMathJax('$$\\text{Sample size } n \\text{:}$$'),
+#                          min = 3, value = 10, step = 1),
+#             
+#             sliderInput("alpha", label = withMathJax('$$\\text{Type I error probability } \\alpha \\text{:}$$'),
+#                         min = 0, max = 1, value = 0.05)
+#           )
+#   )
+# }
+# 
+# blahUI("id")
+
+
+sliderInput("mu0", label = withMathJax('$$\\text{Null mean } \\mu_0 \\text{:}$$'),
+            min = -2, max = 0, value = 0, step = 0.1)
+
+numericInput("n", label = withMathJax('$$\\text{Sample size } n \\text{:}$$'),
+             min = 3, value = 10, step = 1)
+
+sliderInput("alpha", label = withMathJax('$$\\text{Type I error probability } \\alpha \\text{:}$$'),
+            min = 0, max = 1, value = 0.05)
+
+```
+
+**Select $H_1$ parameters:**
+
+
+```{r h1.params}
 
 
 
-sliderInput("mu", label = withMathJax('$$\\text{Means, } \\mu_0 \\text{ and }  \\mu_1 \\text{:}$$'),
-            min = -2, max = 2, value = c(0, 1), step = 0.1)
+sliderInput("mu1", label = withMathJax('$$\\text{Alternative mean } \\mu_1 \\text{:}$$'),
+            min = 0, max = 2, value = 1, step = 0.1)
 
 sliderInput("sigma2", label = withMathJax('$$\\text{Variance } \\sigma^2 \\text{:}$$'),
              min = 0, max = 10, value = 1, step = 0.1)
@@ -62,9 +101,11 @@ The effect size $d = (\mu_1 - \mu_0) / \sigma$ is
   
 renderPrint({
   # read inputs
-  mu <- input$mu
-  mu0 <- mu[1]
-  mu1 <- mu[2]
+  # mu <- input$mu
+  # mu0 <- mu[1]
+  # mu1 <- mu[2]
+  mu0 <- input$mu0
+  mu1 <- input$mu1
   sigma2 <- input$sigma2
   print(paste0("d = ", round((mu1 - mu0) / sqrt(sigma2), 2)))
 })  
@@ -72,35 +113,27 @@ renderPrint({
 ```
 
 
-```{r test.input}
-
-numericInput("n", label = withMathJax('$$\\text{Sample size } n \\text{:}$$'),
-            min = 3, value = 10, step = 1)
-
-sliderInput("alpha", label = withMathJax('$$\\text{Type I error probability } \\alpha \\text{:}$$'),
-            min = 0, max = 1, value = 0.05)
-
-```
 
 
 
-
-Column {.tabset}
+Column
 -------------------------------------
 
 
+###
 
 
-### Density plots
 
 ```{r plot}
 
 renderPlot({
   
   # read inputs
-  mu <- input$mu
-  mu0 <- mu[1]
-  mu1 <- mu[2]
+  # mu <- input$mu
+  # mu0 <- mu[1]
+  # mu1 <- mu[2]
+  mu0 <- input$mu0
+  mu1 <- input$mu1
   sigma2 <- input$sigma2
   
   n <- input$n
@@ -143,24 +176,24 @@ renderPlot({
                    fill = "#D64B40FF") + # fill up type I error +
      geom_text(aes(label = "alpha",
                    x = cv0 + sdt/4, 
-                   y = dt(cv0 + sdt/4, df = n-1) + 0.1*ymax0),
+                   y = dt(cv0 + sdt/4, df = n-1) + 0.18*ymax0),
                parse = TRUE,
                size = 4.5) +           # add alpha label
      geom_text(aes(label = as.character(t1e),
                    x = cv0 + sdt/4, 
-                   y = dt(cv0 + sdt/4, df = n-1)  + 0.1*ymax0 - 0.04*ymax0),
+                   y = dt(cv0 + sdt/4, df = n-1)  + 0.18*ymax0 - 0.06*ymax0),
                parse = TRUE,
                size = 4.5) +           # add alpha value
-     geom_text(aes(label = "Specificity",
-                   x = cv0  - sdt/4, 
-                   y = dt(cv0  - sdt/4, df = n-1) + 0.15*ymax0),
-               parse = TRUE,
-               size = 4.5) +           # add specificity label
-     geom_text(aes(label = as.character(1 - t1e),
-                   x = cv0 - sdt/4, 
-                   y = dt(cv0 - sdt/4, df = n-1) + 0.15*ymax0 - 0.04*ymax0),
-               parse = TRUE,
-               size = 4.5) +           # add specificity value
+     # geom_text(aes(label = "Specificity",
+     #               x = cv0  - sdt/4, 
+     #               y = dt(cv0  - sdt/4, df = n-1) + 0.18*ymax0),
+     #           parse = TRUE,
+     #           size = 4.5) +           # add specificity label
+     # geom_text(aes(label = as.character(1 - t1e),
+     #               x = cv0 - sdt/4, 
+     #               y = dt(cv0 - sdt/4, df = n-1) + 0.18*ymax0 - 0.06*ymax0),
+     #           parse = TRUE,
+     #           size = 4.5) +           # add specificity value
      geom_text(aes(label = as.character(round(cv0, 2)),
                    x = cv0, 
                    y = 1.2*ymax0),
@@ -173,53 +206,55 @@ renderPlot({
     theme(text = element_text(size = 16))
   
   power <- pt(cv0, df = n-1, ncp = tncp, lower.tail = FALSE)
+  power_label <- ifelse(round(power, 2) == 1, "NULL>0.99", as.character(round(power, 2)))
   
   
   h1 <- ggplot(tibble(x = c(xmin, xmax)), aes(x)) +
     stat_function(fun = dt, 
                   args = list(df = n-1, ncp = tncp)) + #adds t plot
-     geom_segment(aes(x = cv0, y = 0, 
-                      xend = cv0, yend = 1.15*ymax1),
-                  linetype="dashed",
-                  size=0.5) + # adds line on critical value
-     stat_function(fun = dt, 
-                   args = list(df = n-1, ncp = tncp),
-                   xlim = c(xmin, cv0),
-                   geom = "area",
-                   fill = "#FCA007FF") + # fill up  type II error
-     stat_function(fun = dt, 
-                   args = list(df = n-1, ncp = tncp),
-                   xlim = c(cv0, xmax),
-                   geom = "area",
-                   fill = "#39558CFF",
-                   alpha = 0.75) + # fill up power +
-     geom_text(aes(label = "Power",
-                   x = cv0 + sdt/4, 
-                   y = dt(cv0 + sdt/4, df = n-1, ncp = tncp) + 0.15*ymax1),
-               parse = TRUE,
-               size = 4.5) +           # add power label
-     geom_text(aes(label = as.character(round(power, 2)),
-                   x = cv0 + sdt/4, 
-                   y = dt(cv0 + sdt/4, df = n-1, ncp = tncp)  + 0.15*ymax1 - 0.06*ymax1),
-               parse = TRUE,
-               size = 4.5) +           # add power value
-     geom_text(aes(label = "beta",
-                   x = cv0  - sdt/4, 
-                   y = dt(cv0  - sdt/4, df = n-1, ncp = tncp) + 0.1*ymax1),
-               parse = TRUE,
-               size = 4.5) +           # add t2e label
-     geom_text(aes(label = as.character(round(1 - power, 2)),
-                   x = cv0 - sdt/4, 
-                   y = dt(cv0 - sdt/4, df = n-1, ncp = tncp) + 0.1*ymax1 - 0.04*ymax1),
-               parse = TRUE,
-               size = 4.5) +           # add t2e value
-     # geom_text(aes(label = as.character(round(cv0, 2)),
-     #               x = cv0, 
-     #               y = 1.2*ymax1),
-     #           parse = TRUE) +          # add critical value
-     labs(x = expression(mu),
-          y = "",
-          title = expression(H[1])) +
+    geom_segment(aes(x = cv0, y = 0, 
+                     xend = cv0, yend = 1.15*ymax1),
+                 linetype="dashed",
+                 size=0.5) + # adds line on critical value
+    stat_function(fun = dt, 
+                  args = list(df = n-1, ncp = tncp),
+                  xlim = c(xmin, cv0),
+                  geom = "area",
+                  fill = "#FCA007FF") + # fill up  type II error
+    stat_function(fun = dt, 
+                  args = list(df = n-1, ncp = tncp),
+                  xlim = c(cv0, xmax),
+                  geom = "area",
+                  fill = "#39558CFF",
+                  alpha = 0.75) + # fill up power +
+    geom_text(aes(label = "Power",
+                  x = cv0 + sdt/4, 
+                  y = dt(cv0 + sdt/4, df = n-1, ncp = tncp) + 0.18*ymax1),
+              parse = TRUE,
+              size = 4.5) +           # add power label
+    annotate("text", 
+             x = cv0 + sdt/4,
+             y = dt(cv0 + sdt/4, df = n-1, ncp = tncp)  + 0.18*ymax1 - 0.06*ymax1,
+             parse = TRUE, 
+             label = power_label,
+             size = 4.5) +               # add power value
+    # geom_text(aes(label = "beta",
+    #               x = cv0  - sdt/4,
+    #               y = dt(cv0  - sdt/4, df = n-1, ncp = tncp) + 0.18*ymax1),
+    #           parse = TRUE,
+    #           size = 4.5) +           # add t2e label
+    # geom_text(aes(label = as.character(round(1 - power, 2)),
+    #               x = cv0 - sdt/4,
+    #               y = dt(cv0 - sdt/4, df = n-1, ncp = tncp) + 0.18*ymax1 - 0.06*ymax1),
+    #           parse = TRUE,
+    #           size = 4.5) +           # add t2e value
+    # geom_text(aes(label = as.character(round(cv0, 2)),
+  #               x = cv0, 
+  #               y = 1.2*ymax1),
+  #           parse = TRUE) +          # add critical value
+  labs(x = "t",
+       y = "",
+       title = expression(H[1])) +
     xlim(c(xmin, xmax)) +
     theme(text = element_text(size = 16),
           axis.title.x = element_text(size = 20))
@@ -243,7 +278,80 @@ renderPlot({
 ```
 
 
-### Sample size calculator
+
+
+
+
+**Sample size calculator**
+=====================================
+
+
+
+Column {.sidebar}
+-------------------------------------
+
+We are testing 
+$$
+H_0: \mu = \mu_0 \enspace \mathrm{vs} \enspace H_1: \mu = \mu_1 > \mu_0.
+$$
+
+ **Select $H_0$ parameters:**
+
+
+```{r h0.params2}
+sliderInput("mu02", label = withMathJax('$$\\text{Null mean } \\mu_0 \\text{:}$$'),
+            min = -2, max = 0, value = 0, step = 0.1)
+
+
+
+sliderInput("alpha2", label = withMathJax('$$\\text{Type I error probability } \\alpha \\text{:}$$'),
+            min = 0, max = 1, value = 0.05)
+
+```
+
+**Select $H_1$ parameters:**
+
+
+```{r h1.params2}
+
+#setSliderColor(color = c("#55C667FF", "#39558CFF"), sliderId = c(1, 2))
+
+sliderInput("mu12", label = withMathJax('$$\\text{Alternative mean } \\mu_1 \\text{:}$$'),
+            min = 0, max = 2, value = 1, step = 0.1)
+
+sliderInput("sigma22", label = withMathJax('$$\\text{Variance } \\sigma^2 \\text{:}$$'),
+             min = 0, max = 10, value = 1, step = 0.1)
+
+
+```
+
+
+The effect size $d = (\mu_1 - \mu_0) / \sigma$ is
+
+```{r effect.size2}
+  
+renderPrint({
+  # read inputs
+  # mu <- input$mu
+  # mu0 <- mu[1]
+  # mu1 <- mu[2]
+  mu0 <- input$mu02
+  mu1 <- input$mu12
+  sigma2 <- input$sigma22
+  print(paste0("d = ", round((mu1 - mu0) / sqrt(sigma2), 2)))
+})  
+
+```
+
+
+
+
+
+Column
+-------------------------------------
+
+
+###
 
 
 
@@ -265,13 +373,15 @@ fillCol(flex = c(NA, 1),
 output$power_plot <- renderPlot({
   
   # read inputs
-  mu <- input$mu
-  mu0 <- mu[1]
-  mu1 <- mu[2]
-  sigma2 <- input$sigma2
+  # mu <- input$mu
+  # mu0 <- mu[1]
+  # mu1 <- mu[2]
+  mu0 <- input$mu02
+  mu1 <- input$mu12
+  sigma2 <- input$sigma22
   power <- input$power
   
-  t1e <- input$alpha
+  t1e <- input$alpha2
   
   
   # create power function
@@ -309,14 +419,15 @@ output$power_plot <- renderPlot({
                  linetype="dashed",
                   size=0.5) + # power line
     labs(x = expression(paste("Sample size ", n)),
-         y = "Power / sensitivity",
+         y = "Power",
          title = paste("Optimal sample size:", nstar)) +
     theme(axis.text = element_text(size = 14),
           axis.title.x = element_text(size = 14)) +
     coord_flip() +
     theme(text = element_text(size = 16),
           axis.title.x = element_text(size = 18),
-          axis.title.y = element_text(size = 16))
+          axis.title.y = element_text(size = 16)) +
+    scale_y_continuous(breaks = function(x) seq(ceiling(x[1]), floor(x[2]), by = 1))
   
   
   power_plot
