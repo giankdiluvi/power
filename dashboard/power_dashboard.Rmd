@@ -10,6 +10,20 @@ output:
 runtime: shiny
 ---
 
+<style type="text/css">
+
+.sidebar {  /* sidebar  */
+   font-size: 14px;
+   font-family: Helvetica;
+   }
+.navbar{
+  font-family: Helvetica;
+}
+</style>
+
+
+
+
 ```{r global, include=FALSE, warning = FALSE}
 # basics
 library(flexdashboard)
@@ -38,45 +52,42 @@ Column {.sidebar}
 -------------------------------------
 
 We are testing 
+<!--
 $$
 H_0: \mu = \mu_0 \enspace \mathrm{vs} \enspace H_1: \mu = \mu_1 > \mu_0.
 $$
+-->
+$$
+H_0: \mu = \mu_0
+$$
+against
+$$
+H_1: \mu = \mu_1 > \mu_0.
+$$
 
- **Select $H_0$ parameters:**
+<hr>
+
+
+**Select $H_0$ parameters:**
 
 
 ```{r h0.params}
-# 
-# blahUI <- function(id){
-#   fillCol(flex = c(NA, 1),
-#           inputPanel(
-#             setSliderColor(color = c("#55C667FF", "#39558CFF"), sliderId = c(1, 2, 3)),
-#             
-#             sliderInput("mu0", label = withMathJax('$$\\text{Null mean } \\mu_0 \\text{:}$$'),
-#                         min = -2, max = 0, value = 0, step = 0.1),
-#             
-#             numericInput("n", label = withMathJax('$$\\text{Sample size } n \\text{:}$$'),
-#                          min = 3, value = 10, step = 1),
-#             
-#             sliderInput("alpha", label = withMathJax('$$\\text{Type I error probability } \\alpha \\text{:}$$'),
-#                         min = 0, max = 1, value = 0.05)
-#           )
-#   )
-# }
-# 
-# blahUI("id")
 
-
-sliderInput("mu0", label = withMathJax('$$\\text{Null mean } \\mu_0 \\text{:}$$'),
+sliderInput("mu0", label = withMathJax("Null mean \\( \\mu_0 \\):"),
             min = -2, max = 0, value = 0, step = 0.1)
 
-numericInput("n", label = withMathJax('$$\\text{Sample size } n \\text{:}$$'),
+numericInput("n", label = withMathJax("Sample size \\( n \\):"),
              min = 3, value = 10, step = 1)
 
-sliderInput("alpha", label = withMathJax('$$\\text{Type I error probability } \\alpha \\text{:}$$'),
+sliderInput("alpha", label = withMathJax('Type I error rate \\( \\alpha \\):'),
             min = 0, max = 1, value = 0.05)
 
+
 ```
+
+
+<hr>
+
 
 **Select $H_1$ parameters:**
 
@@ -85,15 +96,16 @@ sliderInput("alpha", label = withMathJax('$$\\text{Type I error probability } \\
 
 
 
-sliderInput("mu1", label = withMathJax('$$\\text{Alternative mean } \\mu_1 \\text{:}$$'),
+sliderInput("mu1", label = withMathJax('Alternative mean \\( \\mu_1 \\):'),
             min = 0, max = 2, value = 1, step = 0.1)
 
-sliderInput("sigma2", label = withMathJax('$$\\text{Variance } \\sigma^2 \\text{:}$$'),
+sliderInput("sigma2", label = withMathJax('Variance \\( \\sigma^2 \\):'),
              min = 0, max = 10, value = 1, step = 0.1)
 
 
 ```
 
+<hr>
 
 The effect size $d = (\mu_1 - \mu_0) / \sigma$ is
 
@@ -203,7 +215,7 @@ renderPlot({
           y = "",
           title = expression(H[0])) +
     xlim(c(xmin, xmax)) +
-    theme(text = element_text(size = 16))
+    theme(text = element_text(size = 16, family = "helvetica"))
   
   power <- pt(cv0, df = n-1, ncp = tncp, lower.tail = FALSE)
   power_label <- ifelse(round(power, 2) == 1, "NULL>0.99", as.character(round(power, 2)))
@@ -280,50 +292,66 @@ renderPlot({
 
 
 
-
-
 **Sample size calculator**
 =====================================
-
-
 
 Column {.sidebar}
 -------------------------------------
 
 We are testing 
+<!--
 $$
 H_0: \mu = \mu_0 \enspace \mathrm{vs} \enspace H_1: \mu = \mu_1 > \mu_0.
 $$
+-->
+$$
+H_0: \mu = \mu_0
+$$
+against
+$$
+H_1: \mu = \mu_1 > \mu_0.
+$$
 
- **Select $H_0$ parameters:**
+<hr>
+
+
+**Select $H_0$ parameters:**
 
 
 ```{r h0.params2}
-sliderInput("mu02", label = withMathJax('$$\\text{Null mean } \\mu_0 \\text{:}$$'),
+
+sliderInput("mu02", label = withMathJax("Null mean \\( \\mu_0 \\):"),
             min = -2, max = 0, value = 0, step = 0.1)
 
-
-
-sliderInput("alpha2", label = withMathJax('$$\\text{Type I error probability } \\alpha \\text{:}$$'),
+sliderInput("alpha2", label = withMathJax('Type I error rate \\( \\alpha \\):'),
             min = 0, max = 1, value = 0.05)
 
 ```
+
+<hr>
+
+
 
 **Select $H_1$ parameters:**
 
 
 ```{r h1.params2}
 
-#setSliderColor(color = c("#55C667FF", "#39558CFF"), sliderId = c(1, 2))
 
-sliderInput("mu12", label = withMathJax('$$\\text{Alternative mean } \\mu_1 \\text{:}$$'),
+
+sliderInput("mu12", label = withMathJax('Alternative mean \\( \\mu_1 \\):'),
             min = 0, max = 2, value = 1, step = 0.1)
 
-sliderInput("sigma22", label = withMathJax('$$\\text{Variance } \\sigma^2 \\text{:}$$'),
+sliderInput("sigma22", label = withMathJax('Variance \\( \\sigma^2 \\):'),
              min = 0, max = 10, value = 1, step = 0.1)
 
 
 ```
+
+
+
+
+<hr>
 
 
 The effect size $d = (\mu_1 - \mu_0) / \sigma$ is
@@ -332,12 +360,9 @@ The effect size $d = (\mu_1 - \mu_0) / \sigma$ is
   
 renderPrint({
   # read inputs
-  # mu <- input$mu
-  # mu0 <- mu[1]
-  # mu1 <- mu[2]
-  mu0 <- input$mu02
-  mu1 <- input$mu12
-  sigma2 <- input$sigma22
+  mu0 <- input$mu0
+  mu1 <- input$mu1
+  sigma2 <- input$sigma2
   print(paste0("d = ", round((mu1 - mu0) / sqrt(sigma2), 2)))
 })  
 
