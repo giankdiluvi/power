@@ -1,12 +1,14 @@
 ---
 title: "**Power and sample size**"
-author: "Gian Carlo Diluvi"
+author: ""
 output: 
   flexdashboard::flex_dashboard:
     theme: lumen
     vertical_layout: fill
     orientation: columns
     source_code: https://github.com/GiankDiluvi/power
+    navbar:
+      - { title: "Gian Carlo Diluvi", align: right }
 runtime: shiny
 ---
 
@@ -16,8 +18,13 @@ runtime: shiny
    font-size: 14px;
    font-family: Helvetica;
    }
-.navbar{
+.navbar-inverse .navbar{
   font-family: Helvetica;
+}
+.navbar-inverse .navbar-brand{
+  font-family: Helvetica;
+  color: #000000;
+  pointer-events: none;
 }
 </style>
 
@@ -68,20 +75,18 @@ $$
 <hr>
 
 
-**Select $H_0$ parameters:**
+**Select population parameters:**
 
 
 ```{r h0.params}
 
-sliderInput("mu0", label = withMathJax("Null mean \\( \\mu_0 \\):"),
-            min = -2, max = 0, value = 0, step = 0.1)
+sliderInput("mu", label = withMathJax("Null and alternative means \\( \\mu_0, \\mu_1 \\) \n
+                                      Select \\( \\mu_0 < \\mu_1 \\):"),
+            min = -2, max = 2, value = c(0, 1), step = 0.1)
 
-numericInput("n", label = withMathJax("Sample size \\( n \\):"),
-             min = 3, value = 10, step = 1)
 
-sliderInput("alpha", label = withMathJax('Type I error rate \\( \\alpha \\):'),
-            min = 0, max = 1, value = 0.05)
-
+sliderInput("sigma2", label = withMathJax('Variance \\( \\sigma^2 \\):'),
+             min = 0, max = 10, value = 1, step = 0.1)
 
 ```
 
@@ -89,19 +94,22 @@ sliderInput("alpha", label = withMathJax('Type I error rate \\( \\alpha \\):'),
 <hr>
 
 
-**Select $H_1$ parameters:**
+**Select test settings:**
 
 
 ```{r h1.params}
 
 
 
-sliderInput("mu1", label = withMathJax('Alternative mean \\( \\mu_1 \\):'),
-            min = 0, max = 2, value = 1, step = 0.1)
+# sliderInput("mu1", label = withMathJax('Alternative mean \\( \\mu_1 \\):'),
+#             min = 0, max = 2, value = 1, step = 0.1)
 
-sliderInput("sigma2", label = withMathJax('Variance \\( \\sigma^2 \\):'),
-             min = 0, max = 10, value = 1, step = 0.1)
 
+numericInput("n", label = withMathJax("Sample size \\( n \\):"),
+             min = 3, value = 10, step = 1)
+
+sliderInput("alpha", label = withMathJax('Type I error rate \\( \\alpha \\):'),
+            min = 0, max = 1, value = 0.05)
 
 ```
 
@@ -113,11 +121,11 @@ The effect size $d = (\mu_1 - \mu_0) / \sigma$ is
   
 renderPrint({
   # read inputs
-  # mu <- input$mu
-  # mu0 <- mu[1]
-  # mu1 <- mu[2]
-  mu0 <- input$mu0
-  mu1 <- input$mu1
+   mu <- input$mu
+   mu0 <- mu[1]
+   mu1 <- mu[2]
+  #mu0 <- input$mu0
+  #mu1 <- input$mu1
   sigma2 <- input$sigma2
   print(paste0("d = ", round((mu1 - mu0) / sqrt(sigma2), 2)))
 })  
@@ -141,11 +149,11 @@ Column
 renderPlot({
   
   # read inputs
-  # mu <- input$mu
-  # mu0 <- mu[1]
-  # mu1 <- mu[2]
-  mu0 <- input$mu0
-  mu1 <- input$mu1
+  mu <- input$mu
+  mu0 <- mu[1]
+  mu1 <- mu[2]
+  #mu0 <- input$mu0
+  #mu1 <- input$mu1
   sigma2 <- input$sigma2
   
   n <- input$n
@@ -193,7 +201,7 @@ renderPlot({
                size = 4.5) +           # add alpha label
      geom_text(aes(label = as.character(t1e),
                    x = cv0 + sdt/4, 
-                   y = dt(cv0 + sdt/4, df = n-1)  + 0.18*ymax0 - 0.06*ymax0),
+                   y = dt(cv0 + sdt/4, df = n-1)  + 0.18*ymax0 - 0.1*ymax0),
                parse = TRUE,
                size = 4.5) +           # add alpha value
      # geom_text(aes(label = "Specificity",
@@ -211,11 +219,11 @@ renderPlot({
                    y = 1.2*ymax0),
                parse = TRUE,
                size = 5) +          # add critical value
-     labs(x = "",
-          y = "",
-          title = expression(H[0])) +
+     labs(x = "t",
+          y = "Density",
+          title = expression(paste("     Distribution of test statistic under ", H[0]))) +
     xlim(c(xmin, xmax)) +
-    theme(text = element_text(size = 16, family = "helvetica"))
+    theme(text = element_text(size = 16))
   
   power <- pt(cv0, df = n-1, ncp = tncp, lower.tail = FALSE)
   power_label <- ifelse(round(power, 2) == 1, "NULL>0.99", as.character(round(power, 2)))
@@ -246,7 +254,7 @@ renderPlot({
               size = 4.5) +           # add power label
     annotate("text", 
              x = cv0 + sdt/4,
-             y = dt(cv0 + sdt/4, df = n-1, ncp = tncp)  + 0.18*ymax1 - 0.06*ymax1,
+             y = dt(cv0 + sdt/4, df = n-1, ncp = tncp)  + 0.18*ymax1 - 0.1*ymax1,
              parse = TRUE, 
              label = power_label,
              size = 4.5) +               # add power value
@@ -261,30 +269,18 @@ renderPlot({
     #           parse = TRUE,
     #           size = 4.5) +           # add t2e value
     # geom_text(aes(label = as.character(round(cv0, 2)),
-  #               x = cv0, 
-  #               y = 1.2*ymax1),
-  #           parse = TRUE) +          # add critical value
+    #               x = cv0, 
+    #               y = 1.2*ymax1),
+    #           parse = TRUE) +          # add critical value
   labs(x = "t",
-       y = "",
-       title = expression(H[1])) +
+       y = "Density",
+       title = expression(paste("     Distribution of test statistic under ", H[1]))) +
     xlim(c(xmin, xmax)) +
     theme(text = element_text(size = 16),
           axis.title.x = element_text(size = 20))
     
   h0 / h1
   
-  # viridis
-  # show_col(viridis_pal()(20))
-  
-  # geom_text(aes(label ="x^{'*'}",
-  #                  x = cv0 - sd0/4, 
-  #                  y = 1.1*ymax),
-  #              parse = TRUE) +           # add critical value label
-  #    annotate(geom = "text",
-  #             label = as.character(expression(paste("="))),
-  #             x = cv0 - sd0/4 + sd0/6.5, 
-  #             y = 1.1*ymax + 0.011,
-  #             parse = TRUE) +           # add equal sign
 })
 
 ```
@@ -315,35 +311,38 @@ $$
 <hr>
 
 
-**Select $H_0$ parameters:**
+**Select population parameters:**
 
 
 ```{r h0.params2}
 
-sliderInput("mu02", label = withMathJax("Null mean \\( \\mu_0 \\):"),
-            min = -2, max = 0, value = 0, step = 0.1)
+sliderInput("mu2", label = withMathJax("Null and alternative means \\( \\mu_0, \\mu_1 \\) \n
+                                      Select \\( \\mu_0 < \\mu_1 \\):"),
+            min = -2, max = 2, value = c(0, 1), step = 0.1)
 
-sliderInput("alpha2", label = withMathJax('Type I error rate \\( \\alpha \\):'),
-            min = 0, max = 1, value = 0.05)
 
+sliderInput("sigma22", label = withMathJax('Variance \\( \\sigma^2 \\):'),
+             min = 0, max = 10, value = 1, step = 0.1)
 ```
 
 <hr>
 
 
 
-**Select $H_1$ parameters:**
+**Select test settings:**
 
 
 ```{r h1.params2}
 
 
 
-sliderInput("mu12", label = withMathJax('Alternative mean \\( \\mu_1 \\):'),
-            min = 0, max = 2, value = 1, step = 0.1)
+# sliderInput("mu12", label = withMathJax('Alternative mean \\( \\mu_1 \\):'),
+#             min = 0, max = 2, value = 1, step = 0.1)
 
-sliderInput("sigma22", label = withMathJax('Variance \\( \\sigma^2 \\):'),
-             min = 0, max = 10, value = 1, step = 0.1)
+sliderInput("alpha2", label = withMathJax('Type I error rate \\( \\alpha \\):'),
+            min = 0, max = 1, value = 0.05)
+
+
 
 
 ```
@@ -360,8 +359,9 @@ The effect size $d = (\mu_1 - \mu_0) / \sigma$ is
   
 renderPrint({
   # read inputs
-  mu0 <- input$mu0
-  mu1 <- input$mu1
+  mu <- input$mu2
+  mu0 <- mu[1]
+  mu1 <- mu[2]
   sigma2 <- input$sigma2
   print(paste0("d = ", round((mu1 - mu0) / sqrt(sigma2), 2)))
 })  
@@ -398,11 +398,9 @@ fillCol(flex = c(NA, 1),
 output$power_plot <- renderPlot({
   
   # read inputs
-  # mu <- input$mu
-  # mu0 <- mu[1]
-  # mu1 <- mu[2]
-  mu0 <- input$mu02
-  mu1 <- input$mu12
+  mu <- input$mu2
+  mu0 <- mu[1]
+  mu1 <- mu[2]
   sigma2 <- input$sigma22
   power <- input$power
   
@@ -418,7 +416,7 @@ output$power_plot <- renderPlot({
   
   # determine biggest n
   b_target <- max(power, 0.999)
-  for(i in 2:1000){
+  for(i in 2:5000){
     if(power_fun(i) > b_target) break
   }
   nmax <- i
@@ -429,7 +427,13 @@ output$power_plot <- renderPlot({
   }
   nstar <- i
   
+  plot.title <- ifelse(nstar == nmax, paste("     Optimal sample size: >", nstar),
+                       paste("     Optimal sample size:", nstar))
+  
+  # set y axis limits nmax and step size
   nmax <- min(nmax, 2*nstar)
+  nmax <- ifelse(nmax > 49, 50*ceiling(nmax/50), nmax)
+  stepsize <- max(round(nmax / 10), 1)
   
   # plot
   power_plot <- ggplot(tibble(n = 2:nmax, b = power_fun(2:nmax))) +
@@ -445,14 +449,15 @@ output$power_plot <- renderPlot({
                   size=0.5) + # power line
     labs(x = expression(paste("Sample size ", n)),
          y = "Power",
-         title = paste("Optimal sample size:", nstar)) +
+         title = plot.title) +
     theme(axis.text = element_text(size = 14),
           axis.title.x = element_text(size = 14)) +
-    coord_flip() +
     theme(text = element_text(size = 16),
           axis.title.x = element_text(size = 18),
           axis.title.y = element_text(size = 16)) +
-    scale_y_continuous(breaks = function(x) seq(ceiling(x[1]), floor(x[2]), by = 1))
+    scale_x_continuous(breaks = function(x) seq(from = 0, to = floor(x[2]), by = stepsize)) +
+    #scale_y_continuous(breaks = seq(from = 0, to = 1, by = 0.1)) +
+    coord_flip()
   
   
   power_plot
@@ -462,4 +467,3 @@ output$power_plot <- renderPlot({
 
 
 ```
-
