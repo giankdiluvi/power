@@ -362,7 +362,7 @@ renderPrint({
   mu <- input$mu2
   mu0 <- mu[1]
   mu1 <- mu[2]
-  sigma2 <- input$sigma2
+  sigma2 <- input$sigma22
   print(paste0("d = ", round((mu1 - mu0) / sqrt(sigma2), 2)))
 })  
 
