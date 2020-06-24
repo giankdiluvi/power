@@ -6,3 +6,5 @@ dashboard/power_dashboard original.Rmd
 dashboard/slides_plots.R
 dashboard/.Rhistory
 img/*
+!img/densities.png
+!img/power_calculator.png
