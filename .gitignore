@@ -5,3 +5,4 @@ dashboard/.Rproj.user/*
 dashboard/power_dashboard original.Rmd
 dashboard/slides_plots.R
 dashboard/.Rhistory
+img/*
