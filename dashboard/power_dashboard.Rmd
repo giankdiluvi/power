@@ -427,8 +427,8 @@ output$power_plot <- renderPlot({
   }
   nstar <- i
   
-  plot.title <- ifelse(nstar == nmax, paste("     Optimal sample size: >", nstar),
-                       paste("     Optimal sample size:", nstar))
+  plot.title <- ifelse(nstar == nmax, paste("     Smallest possible sample size: >", nstar),
+                       paste("     Smallest possible sample size:", nstar))
   
   # set y axis limits nmax and step size
   nmax <- min(nmax, 2*nstar)
