@@ -240,14 +240,14 @@ renderPlot({
                   args = list(df = n-1, ncp = tncp),
                   xlim = c(xmin, cv0),
                   geom = "area",
-                  fill = "#FCA007FF") + # fill up  type II error
+                  fill = ifelse(mu0 == mu1, "#55C667FF", "#FCA007FF")) + # fill up  type II error
     stat_function(fun = dt, 
                   args = list(df = n-1, ncp = tncp),
                   xlim = c(cv0, xmax),
                   geom = "area",
-                  fill = "#39558CFF",
-                  alpha = 0.75) + # fill up power +
-    geom_text(aes(label = "Power",
+                  fill = ifelse(mu0 == mu1, "#D64B40FF", "#39558CFF"),
+                  alpha = ifelse(mu0 == mu1, 1, 0.75)) + # fill up power +
+    geom_text(aes(label = ifelse(mu0 == mu1, "alpha", "Power"),
                   x = cv0 + sdt/4, 
                   y = dt(cv0 + sdt/4, df = n-1, ncp = tncp) + 0.18*ymax1),
               parse = TRUE,
